@@ -20,20 +20,14 @@ def get_body(message):
 
 def write_mbox(mboxfile, writer):
     for message in mailbox.mbox(mboxfile):
-        msg_To = message['To']
-        msg_From = message['From']
-        msg_Cc = message['Cc']
-        msg_Bcc = message['Bcc']
-        msg_Subj= message['Subject']
-        msg_Body= get_body(message)
-
         writer.append({
-            'From': msg_From,
-            'To': msg_To,
-            'Cc': msg_Cc,
-            'Bcc': msg_Bcc,
-            'Subject': msg_Subj,
-            'Body': msg_Body
+            'From': message['From'],
+            'To': message['To'],
+            'Cc': message['Cc'],
+            'Bcc': message['Bcc'],
+            'Date': message['Date'],
+            'Subject': message['Subject'],
+            'Body': get_body(message)
             })
    
 schema = avro.schema.Parse(open("email.avro.schema").read())
@@ -45,5 +39,5 @@ writer.close()
 
 reader = DataFileReader(open("email.avro", "rb"), DatumReader())
 for email in reader:
-    print(email['Subject'])
+    print(email['Date'])
 reader.close()
