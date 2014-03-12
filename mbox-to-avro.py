@@ -12,10 +12,21 @@ def get_body(message):
         body_start = sm.find('\n', body_start+1)+1
     
         body_end = sm.find('From: ', body_start + 1)
+        if body_end == -1:
+            body_end = sm.find('iamunique', body_start + 1)
+            body_end = sm.find('\n', body_end - 25)
         body = sm[body_start:body_end]
 
         body = body.replace("=20\n", "")
         body = body.replace("=FC", "ü")
+        body = body.replace("=F6", "ö")
+        body = body.replace("=84", "\"")
+        body = body.replace("=94", "\"")
+        body = body.replace("=96", "-")
+        body = body.replace("=92", "\'")
+        body = body.replace("=93", "\"")
+        body = body.replace("=E4", "ä")
+        body = body.replace("=DF", "ss")
         body = body.replace("=", "")
     except:
         body = "N/A"
