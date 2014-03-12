@@ -42,7 +42,7 @@ path = './Archives'
 mboxfiles = [os.path.join(dirpath, f)
 	     for dirpath, dirnames, files in os.walk(path)
 	     for f in files if f.endswith('mbox')]
-for mboxfile in mboxfiles[:2]:
+for mboxfile in mboxfiles:
     write_mbox(mboxfile, writer)
     print(mboxfile)
 writer.close()
