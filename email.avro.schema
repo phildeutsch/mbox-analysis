@@ -4,6 +4,7 @@
  "fields": [
     {"name": "From", "type": "string"},
     {"name": "To", "type": "string"},
+    {"name": "Cc", "type": ["string", "null"]},
     {"name": "Bcc", "type": ["string", "null"]},
     {"name": "Subject", "type": "string"},
     {"name": "Body", "type": "string"}
