@@ -6,6 +6,7 @@
     {"name": "To", "type": "string"},
     {"name": "Cc", "type": ["string", "null"]},
     {"name": "Bcc", "type": ["string", "null"]},
+    {"name": "Date", "type": "string"},
     {"name": "Subject", "type": "string"},
     {"name": "Body", "type": "string"}
     ]
