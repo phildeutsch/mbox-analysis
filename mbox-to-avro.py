@@ -18,28 +18,29 @@ def get_body(message):
     
     return body
 
+def write_mbox(mboxfile, writer):
+    for message in mailbox.mbox(mboxfile):
+        msg_To = message['To']
+        msg_From = message['From']
+        msg_Cc = message['Cc']
+        msg_Bcc = message['Bcc']
+        msg_Subj= message['Subject']
+        msg_Body= get_body(message)
+
+        writer.append({
+            'From': msg_From,
+            'To': msg_To,
+            'Cc': msg_Cc,
+            'Bcc': msg_Bcc,
+            'Subject': msg_Subj,
+            'Body': msg_Body
+            })
+   
 schema = avro.schema.Parse(open("email.avro.schema").read())
 writer = DataFileWriter(open("email.avro", "wb"), DatumWriter(), schema)
 
-
 mboxfile='mbox'
-m = []
-for message in mailbox.mbox(mboxfile):
-    m.append(message)
-    msg_To = message['To']
-    msg_From = message['From']
-    msg_Bcc = message['Bcc']
-    msg_Subj= message['Subject']
-    msg_Body= get_body(message)
-
-    writer.append({
-        'From': msg_From,
-        'To': msg_To,
-        'Bcc': msg_Bcc,
-        'Subject': msg_Subj,
-        'Body': msg_Body
-        })
-    
+write_mbox(mboxfile, writer)    
 writer.close()
 
 reader = DataFileReader(open("email.avro", "rb"), DatumReader())
