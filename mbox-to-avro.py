@@ -18,14 +18,14 @@ def get_body(message):
         body = sm[body_start:body_end]
 
         body = body.replace("=20\n", "")
-        body = body.replace("=FC", "ü")
-        body = body.replace("=F6", "ö")
+        body = body.replace("=FC", "ue")
+        body = body.replace("=F6", "oe")
         body = body.replace("=84", "\"")
         body = body.replace("=94", "\"")
         body = body.replace("=96", "-")
         body = body.replace("=92", "\'")
         body = body.replace("=93", "\"")
-        body = body.replace("=E4", "ä")
+        body = body.replace("=E4", "ae")
         body = body.replace("=DF", "ss")
         body = body.replace("=", "")
     except:
@@ -46,7 +46,7 @@ def write_mbox(mboxfile, writer):
             })
         print(message['Subject'])
    
-schema = avro.schema.Parse(open("email.avro.schema").read())
+schema = avro.schema.parse(open("email.avro.schema").read())
 writer = DataFileWriter(open("email.avro", "wb"), DatumWriter(), schema)
 
 path = './Archives'
@@ -54,8 +54,11 @@ mboxfiles = [os.path.join(dirpath, f)
 	     for dirpath, dirnames, files in os.walk(path)
 	     for f in files if f.endswith('mbox')]
 for mboxfile in mboxfiles:
-    write_mbox(mboxfile, writer)
     print(mboxfile)
+    try:
+        write_mbox(mboxfile, writer)
+    except:
+        print('Error writing mbox to avro.')
 writer.close()
 
 #reader = DataFileReader(open("email.avro", "rb"), DatumReader())
