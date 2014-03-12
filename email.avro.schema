@@ -1,0 +1,11 @@
+{"namespace": "emails.avro",
+ "type": "record",
+ "name": "email",
+ "fields": [
+    {"name": "From", "type": "string"},
+    {"name": "To", "type": "string"},
+    {"name": "Bcc", "type": ["string", "null"]},
+    {"name": "Subject", "type": "string"},
+    {"Name": "Body", "type": "string}
+    ]
+}
