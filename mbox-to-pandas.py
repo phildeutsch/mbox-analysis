@@ -8,6 +8,13 @@ from avro.io import DatumReader, DatumWriter
 
 import pandas as pd
 
+def clean_addresses(addresses, lookupcsv):
+    addressList = addresses.split(',')
+    cleanList = []
+    for address in addressList:
+        cleanList.append(clean_address(address, lookupcsv))
+    return cleanList
+
 def clean_address(address, lookupcsv):
 #    print('Dirty:\t' + address)
     address = address.replace("<", "")
@@ -40,7 +47,7 @@ def clean_address(address, lookupcsv):
         else:
             cleanEmail = address
               
-    print('Clean:\t' + cleanEmail)
+#    print('Clean:\t' + cleanEmail)
     return cleanEmail
 
 def get_body(message):
@@ -84,17 +91,18 @@ def write_table(mboxfile, mailTable):
             message['Subject'],
             get_body(message)
             ])
+        print(cleanFrom)
    
-path = './Archives'
+path = '../emails/Archives'
 mboxfiles = [os.path.join(dirpath, f)
 	     for dirpath, dirnames, files in os.walk(path)
 	     for f in files if f.endswith('mbox')]
 mailTable = []
+#print(mboxfiles)
 
-for mboxfile in mboxfiles[:10]:
-#   print(mboxfile)
+for mboxfile in mboxfiles:
+    print(mboxfile)
     write_table(mboxfile, mailTable)
-writer.close()
 
 m = pd.DataFrame(mailTable)
 m.columns = ['From', 'To', 'Cc', 'Bcc', 'Date', 'Subject', 'Body']
