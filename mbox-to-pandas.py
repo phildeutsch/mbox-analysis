@@ -2,21 +2,23 @@ import os
 import mailbox
 import re
 
-import avro.schema
-from avro.datafile import DataFileReader, DataFileWriter
-from avro.io import DatumReader, DatumWriter
-
 import pandas as pd
 
 def clean_addresses(addresses, lookupcsv):
-    addressList = addresses.split(',')
+    if addresses is None:
+        return []
+#   print(addresses)
+    addresses = addresses.replace("\'", "")
+    addressList = re.split('[,;]', addresses)
     cleanList = []
     for address in addressList:
-        cleanList.append(clean_address(address, lookupcsv))
+        cleanAddress = clean_address(address, lookupcsv)
+        cleanList.append(cleanAddress)
+#       print(cleanAddress)
     return cleanList
 
 def clean_address(address, lookupcsv):
-#    print('Dirty:\t' + address)
+#   print('Dirty:\t' + address)
     address = address.replace("<", "")
     address = address.replace(">", "")
     address = address.replace("\"", "")
@@ -74,35 +76,41 @@ def get_body(message):
         body = body.replace("=E4", "ä")
         body = body.replace("=DF", "ss")
         body = body.replace("=", "")
+        body = body.replace("\"", "")
+        body = body.replace("\'", "")
     except:
         body = "N/A"
     
     return body
 
-def write_table(mboxfile, mailTable):
+def write_table(mboxfile, mailTable, pathToCleanup):
     for message in mailbox.mbox(mboxfile):
-        cleanFrom = clean_address(message['From'], 'name_to_address.csv')
+        cleanFrom = clean_address(message['From'], pathToCleanup)
+        cleanTo = clean_addresses(message['To'], pathToCleanup)
+        cleanCc = clean_addresses(message['Cc'], pathToCleanup)
+        cleanBcc = clean_addresses(message['Bcc'], pathToCleanup)
         mailTable.append([
             cleanFrom,
-            message['To'],
-            message['Cc'],
-            message['Bcc'],
+            cleanTo,
+            cleanCc,
+            cleanBcc,
             message['Date'],
             message['Subject'],
             get_body(message)
             ])
-        print(cleanFrom)
+        print(cleanBcc)
    
-path = '../emails/Archives'
+pathToEmails  = '../emails/Archives'
+pathToCleanup = '../emails/name_to_address.csv'
 mboxfiles = [os.path.join(dirpath, f)
-	     for dirpath, dirnames, files in os.walk(path)
+	     for dirpath, dirnames, files in os.walk(pathToEmails)
 	     for f in files if f.endswith('mbox')]
 mailTable = []
 #print(mboxfiles)
 
-for mboxfile in mboxfiles:
+for mboxfile in [mboxfiles[4]]:
     print(mboxfile)
-    write_table(mboxfile, mailTable)
+    write_table(mboxfile, mailTable, pathToCleanup)
 
 m = pd.DataFrame(mailTable)
 m.columns = ['From', 'To', 'Cc', 'Bcc', 'Date', 'Subject', 'Body']
