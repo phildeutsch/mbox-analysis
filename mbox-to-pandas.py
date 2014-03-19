@@ -88,17 +88,15 @@ def write_table(mboxfile, mailTable, pathToCleanup):
         cleanFrom = clean_address(message['From'], pathToCleanup)
         cleanTo = clean_addresses(message['To'], pathToCleanup)
         cleanCc = clean_addresses(message['Cc'], pathToCleanup)
-        cleanBcc = clean_addresses(message['Bcc'], pathToCleanup)
         mailTable.append([
             cleanFrom,
             cleanTo,
             cleanCc,
-            cleanBcc,
             message['Date'],
             message['Subject'],
             get_body(message)
             ])
-        print(cleanBcc)
+        print(get_body(message))
    
 pathToEmails  = '../emails/Archives'
 pathToCleanup = '../emails/name_to_address.csv'
@@ -108,13 +106,10 @@ mboxfiles = [os.path.join(dirpath, f)
 mailTable = []
 #print(mboxfiles)
 
-for mboxfile in [mboxfiles[4]]:
-    print(mboxfile)
+for mboxfile in mboxfiles:
+#   print(mboxfile)
     write_table(mboxfile, mailTable, pathToCleanup)
 
 m = pd.DataFrame(mailTable)
-m.columns = ['From', 'To', 'Cc', 'Bcc', 'Date', 'Subject', 'Body']
-senders = m['From']
-counts = senders.value_counts()
-counts.sort()
-counts
+m.columns = ['From', 'To', 'Cc', 'Date', 'Subject', 'Body']
+m['NumTo'] = m['To'].map(lambda i: len(i))
