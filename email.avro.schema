@@ -3,9 +3,8 @@
  "name": "email",
  "fields": [
     {"name": "From", "type": "string"},
-    {"name": "To", "type": "string"},
-    {"name": "Cc", "type": ["string", "null"]},
-    {"name": "Bcc", "type": ["string", "null"]},
+    {"name": "To", "type": {"type": "array", "items": "string"}},
+    {"name": "Cc", "type": {"type": "array", "items": "string"}},
     {"name": "Date", "type": "string"},
     {"name": "Subject", "type": "string"},
     {"name": "Body", "type": "string"}
