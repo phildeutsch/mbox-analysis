@@ -7,14 +7,20 @@ from avro.datafile import DataFileReader, DataFileWriter
 from avro.io import DatumReader, DatumWriter
 
 def clean_addresses(addresses, lookupcsv):
-    addressList = addresses.split(',')
+    if addresses is None:
+        return []
+#   print(addresses)
+    addresses = addresses.replace("\'", "")
+    addressList = re.split('[,;]', addresses)
     cleanList = []
     for address in addressList:
-        cleanList.append(clean_address(address, lookupcsv))
+        cleanAddress = clean_address(address, lookupcsv)
+        cleanList.append(cleanAddress)
+#       print(cleanAddress)
     return cleanList
 
 def clean_address(address, lookupcsv):
-#    print('Dirty:\t' + address)
+#   print('Dirty:\t' + address)
     address = address.replace("<", "")
     address = address.replace(">", "")
     address = address.replace("\"", "")
@@ -72,19 +78,23 @@ def get_body(message):
         body = body.replace("=E4", "ä")
         body = body.replace("=DF", "ss")
         body = body.replace("=", "")
+        body = body.replace("\"", "")
+        body = body.replace("\'", "")
     except:
         body = "N/A"
     
     return body
 
-def write_avro(mboxfile, writer):
+def write_avro(mboxfile, writer, pathToCleanup):
     for message in mailbox.mbox(mboxfile):
-        cleanFrom = clean_address(message['From'], 'name_to_address.csv')
+        cleanFrom = clean_address(message['From'], pathToCleanup)
+        cleanTo = clean_addresses(message['To'], pathToCleanup)
+        cleanCc = clean_addresses(message['Cc'], pathToCleanup)
+        cleanBcc = clean_addresses(message['Bcc'], pathToCleanup)
         writer.append({
             'From': cleanFrom,
-            'To': message['To'],
-            'Cc': message['Cc'],
-            'Bcc': message['Bcc'],
+            'To': cleanTo,
+            'Cc': cleanCc,
             'Date': message['Date'],
             'Subject': message['Subject'],
             'Body': get_body(message)
@@ -94,19 +104,18 @@ def write_avro(mboxfile, writer):
 schema = avro.schema.Parse(open("email.avro.schema").read())
 writer = DataFileWriter(open("email.avro", "wb"), DatumWriter(), schema)
    
-path = '../emails/Archives'
+pathToEmails  = '../emails/Archives'
+pathToCleanup = '../emails/name_to_address.csv'
+
 mboxfiles = [os.path.join(dirpath, f)
-	     for dirpath, dirnames, files in os.walk(path)
+	     for dirpath, dirnames, files in os.walk(pathToEmails)
 	     for f in files if f.endswith('mbox')]
 mailTable = []
 #print(mboxfiles)
 
 for mboxfile in mboxfiles:
-#    print(mboxfile)
-    try:
-       write_avro(mboxfile, writer)
-    except:
-        print('Error writing mbox to avro.')        
+#   print(mboxfile)
+    write_avro(mboxfile, writer, pathToCleanup)   
 
 writer.close()
 
